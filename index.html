@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Systems Assignment 3 Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Hide scrollbar for cleaner look in tabs if necessary */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        <header class="text-center space-y-4">
+            <h1 class="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight">Group 4 Power Systems Assignment 3</h1>
+            <h2 class="text-xl md:text-2xl font-medium text-blue-600">Transmission Line Sending-End Parameter Analyzer</h2>
+        </header>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+            <div>
+                <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">Generalized Problem Statement</h3>
+                <p class="text-slate-600 italic">
+                    "A 50 Hz transmission line L km long has a series impedance of Z ohm/km and a total shunt admittance of Y mho. The receiving-end load is PR MW at VR kV with m lagging power factor. Write a generalized program create a portal to calculate voltage, current, power and power factor at the sending-end. Also calculate the voltage regulation of the line and transmission efficiency."
+                </p>
+            </div>
+            
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <h3 class="font-semibold text-blue-800 mb-2">Transmission Line Classification Logic:</h3>
+                <ul class="list-disc list-inside text-sm text-blue-900 space-y-1">
+                    <li><strong>Short Line:</strong> Length &lt; 80 km (Ignores shunt admittance. A=1, B=Z, C=0, D=1).</li>
+                    <li><strong>Medium Line:</strong> 80 &le; Length &le; 250 km (Uses Nominal &pi; or T model based on user selection/default).</li>
+                    <li><strong>Long Line:</strong> Length &gt; 250 km (Uses exact distributed parameter model with hyperbolic functions).</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+            <h3 class="text-xl font-bold text-slate-800 mb-6">General Calculator</h3>
+            <form id="general-calc-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- System Params -->
+                <div class="space-y-4">
+                    <h4 class="font-semibold text-slate-700">System Parameters</h4>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Phase</label>
+                        <select id="gc-phase" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="3">3-Phase</option>
+                            <option value="1">1-Phase</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Frequency (Hz)</label>
+                        <input type="number" id="gc-freq" value="50" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Length L (km)</label>
+                        <input type="number" id="gc-length" value="100" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+
+                <!-- Line Constants -->
+                <div class="space-y-4">
+                    <h4 class="font-semibold text-slate-700">Line Constants (per km)</h4>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Resistance (&Omega;/km)</label>
+                        <input type="number" id="gc-r" value="0.1" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Inductance (mH/km)</label>
+                        <input type="number" id="gc-l" value="1.2" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Capacitance (&mu;F/km)</label>
+                        <input type="number" id="gc-c" value="0.01" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Medium Line Model Type</label>
+                        <select id="gc-model" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500">
+                            <option value="pi">Nominal Pi (&pi;)</option>
+                            <option value="t">Nominal T</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Load Params -->
+                <div class="space-y-4">
+                    <h4 class="font-semibold text-slate-700">Receiving-End Load</h4>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Power (MW)</label>
+                        <input type="number" id="gc-p" value="50" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Voltage (kV)</label>
+                        <input type="number" id="gc-v" value="132" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Power Factor (Lagging)</label>
+                        <input type="number" id="gc-pf" value="0.8" step="0.01" min="0" max="1" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 lg:col-span-3 pt-4">
+                    <button type="submit" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition duration-200">
+                        Calculate Sending-End Parameters
+                    </button>
+                </div>
+            </form>
+
+            <div id="gc-results" class="hidden mt-8 bg-slate-50 border border-slate-200 rounded-xl p-6">
+                <h4 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Results (<span id="res-classification" class="text-blue-600"></span>)</h4>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Sending Voltage</div>
+                        <div class="text-xl font-bold text-slate-900" id="res-vs">-- kV</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Sending Current</div>
+                        <div class="text-xl font-bold text-slate-900" id="res-is">-- A</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Sending Power</div>
+                        <div class="text-xl font-bold text-slate-900" id="res-ps">-- MW</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Power Factor</div>
+                        <div class="text-xl font-bold text-slate-900" id="res-pfs">-- Lag</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Voltage Regulation</div>
+                        <div class="text-xl font-bold text-blue-600" id="res-vr">-- %</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Efficiency</div>
+                        <div class="text-xl font-bold text-green-600" id="res-eff">-- %</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-6">
+            <h3 class="text-2xl font-bold text-slate-800">Assignment Problems (1 to 8)</h3>
+            <div id="problems-container" class="space-y-6">
+                <!-- Javascript will populate the problems here -->
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        class Complex {
+            constructor(re, im = 0) {
+                this.re = re;
+                this.im = im;
+            }
+            
+            add(other) { return new Complex(this.re + other.re, this.im + other.im); }
+            sub(other) { return new Complex(this.re - other.re, this.im - other.im); }
+            mul(other) { return new Complex(this.re * other.re - this.im * other.im, this.re * other.im + this.im * other.re); }
+            
+            div(other) {
+                const denom = other.re * other.re + other.im * other.im;
+                if(denom === 0) return new Complex(0,0);
+                return new Complex(
+                    (this.re * other.re + this.im * other.im) / denom,
+                    (this.im * other.re - this.re * other.im) / denom
+                );
+            }
+            
+            mag() { return Math.sqrt(this.re * this.re + this.im * this.im); }
+            arg() { return Math.atan2(this.im, this.re); }
+            
+            static fromPolar(r, theta) {
+                return new Complex(r * Math.cos(theta), r * Math.sin(theta));
+            }
+
+            sqrt() {
+                const r = Math.sqrt(this.mag());
+                const theta = this.arg() / 2;
+                return Complex.fromPolar(r, theta);
+            }
+
+            cosh() {
+                // cosh(x + iy) = cosh(x)cos(y) + i sinh(x)sin(y)
+                const x = this.re;
+                const y = this.im;
+                return new Complex(Math.cosh(x) * Math.cos(y), Math.sinh(x) * Math.sin(y));
+            }
+
+            sinh() {
+                // sinh(x + iy) = sinh(x)cos(y) + i cosh(x)sin(y)
+                const x = this.re;
+                const y = this.im;
+                return new Complex(Math.sinh(x) * Math.cos(y), Math.cosh(x) * Math.sin(y));
+            }
+        }
+
+        // Helper Math functions
+        const PI = Math.PI;
+
+        function calculateLineParameters(config) {
+            let {
+                phase, f, L, r, x, y_sus, pr_mw, vr_kv, pf,
+                modelOverride = null, 
+                isTotalImpedance = false 
+            } = config;
+
+            // Z and Y Calculations
+            let Z_total, Y_total;
+
+            if (isTotalImpedance) {
+                Z_total = new Complex(r, x); 
+                Y_total = new Complex(0, y_sus); 
+            } else {
+                let z_series = new Complex(r, x); // per km
+                let y_shunt = new Complex(0, y_sus); // per km
+                Z_total = new Complex(z_series.re * L, z_series.im * L);
+                Y_total = new Complex(y_shunt.re * L, y_shunt.im * L);
+            }
+
+            // Classification
+            let lineType = "";
+            let A, B, C, D;
+
+            let effectiveModel = modelOverride;
+            if (!effectiveModel) {
+                if (L < 80) effectiveModel = "short";
+                else if (L <= 250) effectiveModel = "pi"; // default medium
+                else effectiveModel = "long";
+            }
+
+            // ABCD Parameters
+            if (effectiveModel === "short") {
+                lineType = "Short Line Model";
+                A = new Complex(1, 0);
+                B = Z_total;
+                C = new Complex(0, 0);
+                D = new Complex(1, 0);
+            } 
+            else if (effectiveModel === "pi") {
+                lineType = "Medium Line (Nominal Pi)";
+                let YZ2 = Y_total.mul(Z_total).div(new Complex(2, 0));
+                let YZ4 = Y_total.mul(Z_total).div(new Complex(4, 0));
+                
+                A = new Complex(1, 0).add(YZ2);
+                D = A;
+                B = Z_total;
+                C = Y_total.mul(new Complex(1, 0).add(YZ4));
+            }
+            else if (effectiveModel === "t") {
+                lineType = "Medium Line (Nominal T)";
+                let YZ2 = Y_total.mul(Z_total).div(new Complex(2, 0));
+                let YZ4 = Y_total.mul(Z_total).div(new Complex(4, 0));
+
+                A = new Complex(1, 0).add(YZ2);
+                D = A;
+                B = Z_total.mul(new Complex(1, 0).add(YZ4));
+                C = Y_total;
+            }
+            else if (effectiveModel === "long") {
+                lineType = "Long Line (Exact Model)";
+                let gammaL = (Z_total.mul(Y_total)).sqrt();
+                
+                let Zc;
+                if (Y_total.mag() === 0) Zc = new Complex(9999999,0); // Avoid div by zero if Y is exactly 0
+                else Zc = (Z_total.div(Y_total)).sqrt();
+                
+                A = gammaL.cosh();
+                D = A;
+                B = Zc.mul(gammaL.sinh());
+                
+                if (Zc.mag() === 0) C = new Complex(0,0);
+                else C = (new Complex(1, 0).div(Zc)).mul(gammaL.sinh());
+            }
+
+            // Receiving End Voltages & Currents
+            let vr_mag_ph = phase === 3 ? (vr_kv * 1000) / Math.sqrt(3) : vr_kv * 1000;
+            let pr_watts = pr_mw * 1e6;
+            
+            let ir_mag = phase === 3 
+                ? pr_watts / (3 * vr_mag_ph * pf) 
+                : pr_watts / (vr_mag_ph * pf);
+            
+            let ir_angle = -Math.acos(pf); // Lagging power factor is negative angle
+            
+            let VR = new Complex(vr_mag_ph, 0);
+            let IR = Complex.fromPolar(ir_mag, ir_angle);
+
+            // Sending End Phasers
+            // VS = A*VR + B*IR
+            let VS = (A.mul(VR)).add(B.mul(IR));
+            // IS = C*VR + D*IR
+            let IS = (C.mul(VR)).add(D.mul(IR));
+
+            // Magnitudes
+            let vs_mag = VS.mag();
+            let vs_line_kv = phase === 3 ? (vs_mag * Math.sqrt(3)) / 1000 : vs_mag / 1000;
+            
+            let is_mag = IS.mag();
+            let is_angle = IS.arg();
+            let vs_angle = VS.arg();
+
+            // Sending End Power & PF
+            let pfs_angle = vs_angle - is_angle;
+            let pfs = Math.cos(pfs_angle);
+            let ps_watts = phase === 3 ? 3 * vs_mag * is_mag * pfs : vs_mag * is_mag * pfs;
+            let ps_mw = ps_watts / 1e6;
+
+            // Voltage Regulation
+            let vr_no_load = vs_mag / A.mag();
+            let v_reg = ((vr_no_load - vr_mag_ph) / vr_mag_ph) * 100;
+
+            // Efficiency
+            let eff = (pr_watts / ps_watts) * 100;
+
+            return {
+                lineType,
+                vs_kv: vs_line_kv,
+                is_a: is_mag,
+                ps_mw: ps_mw,
+                pfs: pfs,
+                v_reg: v_reg,
+                eff: eff
+            };
+        }
+
+        const problems = [
+            {
+                id: 1,
+                text: "problem 1. A single phase 60 Hz generator supplies an inductive load of 4500 kW at a power factor of 0.8 lagging by means of a 20 km long overhead transmission line. The line resistance and inductance are 0.0195 Ω/km and 0.60 mH/km. The voltage at the receiving end is required to be kept constant at 10.2 kV. Find (a) the sending end voltage and voltage regulation of the line (b) the value of the capacitors to be placed in parallel with the load such that the regulation is reduced to 60% of that obtained in part (a); (c) compare the transmission efficiencies in parts (a) and (b).",
+                type: "calc",
+                config: { phase: 1, f: 60, L: 20, r: 0.0195, x: 2*PI*60*0.6e-3, y_sus: 0, pr_mw: 4.5, vr_kv: 10.2, pf: 0.8, modelOverride: 'short' }
+            },
+            {
+                id: 2,
+                text: "problem 2. A 220 kV, 3-phase transmission line is 60 km long. The resistance is 0.15 Ω/km and the inductance is 1.4 mH/km. Use the short line model to find the voltage and power at the sending end and the voltage regulation and efficiency when the line is supplying a three phase load of 300 MVA at 0.8 pf lagging at 220 kV.",
+                type: "calc",
+                config: { phase: 3, f: 50, L: 60, r: 0.15, x: 2*PI*50*1.4e-3, y_sus: 0, pr_mw: 300*0.8, vr_kv: 220, pf: 0.8, modelOverride: 'short' }
+            },
+            {
+                id: 3,
+                text: "problem 3. A 3-phase, 50-Hz overhead transmission line 100 km long has the following constants: Resistance/km/phase = 0.1 Ω; Inductive reactance/km/phase = 0·2 Ω; Capacitive susceptance/km/phase= 0·04 × 10−4 Siemen Determine (i) the sending end current (ii) sending end voltage (iii) sending end power factor (iv) transmission efficiency and v) voltage regulation, when supplying a balanced load of 10,000 kW at 66 kV, p.f. 0·8 lagging. Use nominal T method.",
+                type: "calc",
+                config: { phase: 3, f: 50, L: 100, r: 0.1, x: 0.2, y_sus: 0.04e-4, pr_mw: 10, vr_kv: 66, pf: 0.8, modelOverride: 't' }
+            },
+            {
+                id: 4,
+                text: "problem 4. A 3-phase, 50Hz, 150 km line has a resistance, inductive reactance and capacitive shunt admittance of 0·1 Ω, 0·5 Ω and 3 ×10−6 S per km per phase. If the line delivers 50 MW at 110 kV and 0·8 p.f. lagging, determine the sending end voltage, sending end current, sending end power factor, transmission efficiency and voltage regulation. Assume a nominal π circuit for the line.",
+                type: "calc",
+                config: { phase: 3, f: 50, L: 150, r: 0.1, x: 0.5, y_sus: 3e-6, pr_mw: 50, vr_kv: 110, pf: 0.8, modelOverride: 'pi' }
+            },
+            {
+                id: 5,
+                text: "problem 5. A three-phase 50 Hz transmission line is 400 km long. The voltage at the sending-end is 220 kV. The line parameters are r = 0.125 ohm/km, x = 0.4 ohm/ km and y = 2.8 x 10-6 mho/km. Find the following: (i) The sending-end current and receiving-end voltage when there is no-load on the line. (ii) The maximum permissible line length if the receiving-end no-load voltage is not to exceed 235 kV. (iii) For part (i), the maximum permissible line frequency, if the no-load voltage is not to exceed 250 kV.",
+                type: "unrelated"
+            },
+            {
+                id: 6,
+                text: "problem 6. A 50 Hz transmission line 300 km long has a total series impedance of 40 + j125 ohms and a total shunt admittance of 10-3 mho. The receiving-end load is 50 MW at 220 kV with 0.8 lagging power factor. Find the sending-end voltage, current, power and power factor using (a) short line approximation, (b) nominal-Π method, (c) exact transmission line equation",
+                type: "calc",
+                config: { phase: 3, f: 50, L: 300, r: 40, x: 125, y_sus: 1e-3, pr_mw: 50, vr_kv: 220, pf: 0.8, isTotalImpedance: true, modelOverride: 'long' }
+            },
+            {
+                id: 7,
+                text: "problem 7. A three-phase 50 Hz transmission line is 400 km long. The voltage at the sending-end is 220 kV. The line parameters are r = 0.125 ohm/km, x = 0.4 ohm/ km and y = 2.8 x 10-6 mho/km. If the line is open circuited with a receiving-end voltage of 220 KV, find the rms value and phase angle of the following: (a) The incident and reflected voltages to neutral at the receiving-end. (b) The incident and reflected voltages to neutral at 200 km from the receiving-end. (c) The resultant voltage at 200 km from the receiving-end. Note: Use the receiving-end line to neutral voltage as reference.",
+                type: "unrelated"
+            },
+            {
+                id: 8,
+                text: "problem 8. A 275 kV transmission line has the following line constants: A = 0.85∠5°; B = 200∠75° a) Determine the power at unity power factor that can be received if the voltage profile at each end is to be maintained at 275 kV. b) What type and rating of compensation equipment would be required if the load is 150 MW at unity power factor with the same voltage profile as in part (a). c) With the load as in part (b), what would be the receiving-end voltage if the compensation equipment is not installed?",
+                type: "unrelated"
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // General Form Submit
+            document.getElementById('general-calc-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const f = parseFloat(document.getElementById('gc-freq').value);
+                const L = parseFloat(document.getElementById('gc-length').value);
+                const L_mH = parseFloat(document.getElementById('gc-l').value);
+                const C_uF = parseFloat(document.getElementById('gc-c').value);
+
+                // Convert L and C to reactance and susceptance
+                const x = 2 * PI * f * (L_mH * 1e-3);
+                const y_sus = 2 * PI * f * (C_uF * 1e-6);
+
+                const config = {
+                    phase: parseInt(document.getElementById('gc-phase').value),
+                    f: f,
+                    L: L,
+                    r: parseFloat(document.getElementById('gc-r').value),
+                    x: x,
+                    y_sus: y_sus,
+                    pr_mw: parseFloat(document.getElementById('gc-p').value),
+                    vr_kv: parseFloat(document.getElementById('gc-v').value),
+                    pf: parseFloat(document.getElementById('gc-pf').value),
+                    modelOverride: L >= 80 && L <= 250 ? document.getElementById('gc-model').value : null
+                };
+
+                const res = calculateLineParameters(config);
+                displayResults('gc-results', res, 'res');
+            });
+
+            // Render Problems
+            const container = document.getElementById('problems-container');
+            
+            problems.forEach((prob, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-slate-200 p-6";
+                
+                let contentHTML = `
+                    <h4 class="text-lg font-semibold text-slate-800 mb-3 border-b pb-2">Problem ${prob.id}</h4>
+                    <p class="text-slate-700 text-sm md:text-base leading-relaxed mb-4">${prob.text}</p>
+                    <button id="btn-prob-${prob.id}" class="bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 font-medium py-2 px-4 rounded-lg transition duration-150">
+                        Solve Generalized Parts
+                    </button>
+                    <div id="res-container-${prob.id}" class="hidden mt-4 pt-4 border-t border-slate-100">
+                `;
+
+                if (prob.type === 'unrelated') {
+                    contentHTML += `
+                        <div class="bg-amber-50 text-amber-800 p-4 rounded-lg border border-amber-200 text-sm">
+                            <span class="font-semibold">Note:</span> This problem statement is not directly related to the generalized calculation of sending-end parameters for a given load as requested in the main assignment.
+                        </div>
+                    `;
+                } else {
+                    contentHTML += `
+                        <h5 class="text-sm font-bold text-slate-700 mb-3">Calculated Sending-End Parameters (<span id="type-prob-${prob.id}" class="text-indigo-600"></span>):</h5>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Voltage (Vs)</div>
+                                <div class="text-lg font-semibold" id="vs-prob-${prob.id}">--</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Current (Is)</div>
+                                <div class="text-lg font-semibold" id="is-prob-${prob.id}">--</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Power (Ps)</div>
+                                <div class="text-lg font-semibold" id="ps-prob-${prob.id}">--</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Power Factor</div>
+                                <div class="text-lg font-semibold" id="pf-prob-${prob.id}">--</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Regulation</div>
+                                <div class="text-lg font-semibold text-indigo-600" id="vr-prob-${prob.id}">--</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Efficiency</div>
+                                <div class="text-lg font-semibold text-emerald-600" id="eff-prob-${prob.id}">--</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                contentHTML += `</div>`;
+                card.innerHTML = contentHTML;
+                container.appendChild(card);
+
+                // Attach Event Listener
+                document.getElementById(`btn-prob-${prob.id}`).addEventListener('click', function() {
+                    const resContainer = document.getElementById(`res-container-${prob.id}`);
+                    resContainer.classList.remove('hidden');
+
+                    if (prob.type === 'calc') {
+                        const res = calculateLineParameters(prob.config);
+                        document.getElementById(`type-prob-${prob.id}`).innerText = res.lineType;
+                        document.getElementById(`vs-prob-${prob.id}`).innerText = res.vs_kv.toFixed(2) + " kV";
+                        document.getElementById(`is-prob-${prob.id}`).innerText = res.is_a.toFixed(2) + " A";
+                        document.getElementById(`ps-prob-${prob.id}`).innerText = res.ps_mw.toFixed(2) + " MW";
+                        document.getElementById(`pf-prob-${prob.id}`).innerText = res.pfs.toFixed(4) + " Lag";
+                        document.getElementById(`vr-prob-${prob.id}`).innerText = res.v_reg.toFixed(2) + " %";
+                        document.getElementById(`eff-prob-${prob.id}`).innerText = res.eff.toFixed(2) + " %";
+                    }
+                    
+                    // Disable button after click for UI neatness
+                    this.classList.add('opacity-50', 'cursor-not-allowed');
+                    this.disabled = true;
+                });
+            });
+        });
+
+        function displayResults(containerId, res, prefix) {
+            document.getElementById(containerId).classList.remove('hidden');
+            document.getElementById(`${prefix}-classification`).innerText = res.lineType;
+            document.getElementById(`${prefix}-vs`).innerText = res.vs_kv.toFixed(2) + " kV";
+            document.getElementById(`${prefix}-is`).innerText = res.is_a.toFixed(2) + " A";
+            document.getElementById(`${prefix}-ps`).innerText = res.ps_mw.toFixed(2) + " MW";
+            document.getElementById(`${prefix}-pfs`).innerText = res.pfs.toFixed(4) + " Lag";
+            document.getElementById(`${prefix}-vr`).innerText = res.v_reg.toFixed(2) + " %";
+            document.getElementById(`${prefix}-eff`).innerText = res.eff.toFixed(2) + " %";
+        }
+    </script>
+</body>
+</html>
