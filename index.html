@@ -25,7 +25,7 @@
             <div>
                 <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">Generalized Problem Statement</h3>
                 <p class="text-slate-600 italic">
-                    "A 50 Hz transmission line L km long has a series impedance of Z ohm/km and a total shunt admittance of Y mho. The receiving-end load is PR MW at VR kV with m lagging power factor. Write a generalized program create a portal to calculate voltage, current, power and power factor at the sending-end. Also calculate the voltage regulation of the line and transmission efficiency."
+                    "A 50 Hz transmission line L km long has a series impedance of Z ohm/km and a total shunt admittance of Y mho. The receiving-end load is P<sub>R</sub> MW at V<sub>R</sub> kV with m lagging power factor. Write a generalized program create a portal to calculate voltage, current, power and power factor at the sending-end. Also calculate the voltage regulation of the line and transmission efficiency."
                 </p>
             </div>
             
@@ -33,7 +33,7 @@
                 <h3 class="font-semibold text-blue-800 mb-2">Transmission Line Classification Logic:</h3>
                 <ul class="list-disc list-inside text-sm text-blue-900 space-y-1">
                     <li><strong>Short Line:</strong> Length &lt; 80 km (Ignores shunt admittance. A=1, B=Z, C=0, D=1).</li>
-                    <li><strong>Medium Line:</strong> 80 &le; Length &le; 250 km (Uses Nominal &pi; or T model based on user selection/default).</li>
+                    <li><strong>Medium Line:</strong> 80 &le; Length &le; 250 km (Uses Nominal &pi; model by default).</li>
                     <li><strong>Long Line:</strong> Length &gt; 250 km (Uses exact distributed parameter model with hyperbolic functions).</li>
                 </ul>
             </div>
@@ -46,13 +46,6 @@
                 <div class="space-y-4">
                     <h4 class="font-semibold text-slate-700">System Parameters</h4>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Phase</label>
-                        <select id="gc-phase" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500">
-                            <option value="3">3-Phase</option>
-                            <option value="1">1-Phase</option>
-                        </select>
-                    </div>
-                    <div>
                         <label class="block text-sm font-medium mb-1">Frequency (Hz)</label>
                         <input type="number" id="gc-freq" value="50" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
                     </div>
@@ -64,25 +57,22 @@
 
                 <!-- Line Constants -->
                 <div class="space-y-4">
-                    <h4 class="font-semibold text-slate-700">Line Constants (per km)</h4>
+                    <h4 class="font-semibold text-slate-700">Line Constants</h4>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Resistance (&Omega;/km)</label>
-                        <input type="number" id="gc-r" value="0.1" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                        <label class="block text-sm font-medium mb-1">Series Impedance &mdash; Resistance R (&Omega; or &Omega;/km)</label>
+                        <input type="number" id="gc-rz" value="0.1" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Inductance (mH/km)</label>
-                        <input type="number" id="gc-l" value="1.2" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                        <label class="block text-sm font-medium mb-1">Series Impedance &mdash; Reactance X (&Omega; or &Omega;/km)</label>
+                        <input type="number" id="gc-xz" value="0.4" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Capacitance (&mu;F/km)</label>
-                        <input type="number" id="gc-c" value="0.01" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
+                        <label class="block text-sm font-medium mb-1">Shunt Admittance Y (mho or mho/km)</label>
+                        <input type="number" id="gc-y" value="0.00003" step="any" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500" required>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Medium Line Model Type</label>
-                        <select id="gc-model" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500">
-                            <option value="pi">Nominal Pi (&pi;)</option>
-                            <option value="t">Nominal T</option>
-                        </select>
+                    <div class="flex items-start gap-2 pt-1">
+                        <input type="checkbox" id="gc-total-toggle" class="mt-1 rounded border-slate-300 focus:ring-2 focus:ring-blue-500">
+                        <label for="gc-total-toggle" class="text-sm font-medium leading-snug">Values above are TOTAL for the whole line (leave unchecked if they are per-km values)</label>
                     </div>
                 </div>
 
@@ -142,7 +132,7 @@
         </section>
 
         <section class="space-y-6">
-            <h3 class="text-2xl font-bold text-slate-800">Assignment Problems (1 to 8)</h3>
+            <h3 class="text-2xl font-bold text-slate-800">Assignment Problems (1 to 5)</h3>
             <div id="problems-container" class="space-y-6">
                 <!-- Javascript will populate the problems here -->
             </div>
@@ -228,7 +218,7 @@
             let effectiveModel = modelOverride;
             if (!effectiveModel) {
                 if (L < 80) effectiveModel = "short";
-                else if (L <= 250) effectiveModel = "pi"; // default medium
+                else if (L <= 250) effectiveModel = "pi"; // default medium model (most common)
                 else effectiveModel = "long";
             }
 
@@ -319,12 +309,19 @@
             return {
                 lineType,
                 vs_kv: vs_line_kv,
+                vs_angle_deg: vs_angle * 180 / PI,
                 is_a: is_mag,
+                is_angle_deg: is_angle * 180 / PI,
                 ps_mw: ps_mw,
                 pfs: pfs,
                 v_reg: v_reg,
                 eff: eff
             };
+        }
+
+        // Formats a phasor result as "magnitude∠angle° unit"
+        function formatPhasor(mag, angleDeg, unit) {
+            return `${mag.toFixed(2)}\u2220${angleDeg.toFixed(2)}\u00B0 ${unit}`;
         }
 
         const problems = [
@@ -354,24 +351,9 @@
             },
             {
                 id: 5,
-                text: "problem 5. A three-phase 50 Hz transmission line is 400 km long. The voltage at the sending-end is 220 kV. The line parameters are r = 0.125 ohm/km, x = 0.4 ohm/ km and y = 2.8 x 10-6 mho/km. Find the following: (i) The sending-end current and receiving-end voltage when there is no-load on the line. (ii) The maximum permissible line length if the receiving-end no-load voltage is not to exceed 235 kV. (iii) For part (i), the maximum permissible line frequency, if the no-load voltage is not to exceed 250 kV.",
-                type: "unrelated"
-            },
-            {
-                id: 6,
-                text: "problem 6. A 50 Hz transmission line 300 km long has a total series impedance of 40 + j125 ohms and a total shunt admittance of 10-3 mho. The receiving-end load is 50 MW at 220 kV with 0.8 lagging power factor. Find the sending-end voltage, current, power and power factor using (a) short line approximation, (b) nominal-Π method, (c) exact transmission line equation",
+                text: "problem 5. A 50 Hz transmission line 300 km long has a total series impedance of 40 + j125 ohms and a total shunt admittance of 10-3 mho. The receiving-end load is 50 MW at 220 kV with 0.8 lagging power factor. Find the sending-end voltage, current, power and power factor using (a) short line approximation, (b) nominal-Π method, (c) exact transmission line equation",
                 type: "calc",
                 config: { phase: 3, f: 50, L: 300, r: 40, x: 125, y_sus: 1e-3, pr_mw: 50, vr_kv: 220, pf: 0.8, isTotalImpedance: true, modelOverride: 'long' }
-            },
-            {
-                id: 7,
-                text: "problem 7. A three-phase 50 Hz transmission line is 400 km long. The voltage at the sending-end is 220 kV. The line parameters are r = 0.125 ohm/km, x = 0.4 ohm/ km and y = 2.8 x 10-6 mho/km. If the line is open circuited with a receiving-end voltage of 220 KV, find the rms value and phase angle of the following: (a) The incident and reflected voltages to neutral at the receiving-end. (b) The incident and reflected voltages to neutral at 200 km from the receiving-end. (c) The resultant voltage at 200 km from the receiving-end. Note: Use the receiving-end line to neutral voltage as reference.",
-                type: "unrelated"
-            },
-            {
-                id: 8,
-                text: "problem 8. A 275 kV transmission line has the following line constants: A = 0.85∠5°; B = 200∠75° a) Determine the power at unity power factor that can be received if the voltage profile at each end is to be maintained at 275 kV. b) What type and rating of compensation equipment would be required if the load is 150 MW at unity power factor with the same voltage profile as in part (a). c) With the load as in part (b), what would be the receiving-end voltage if the compensation equipment is not installed?",
-                type: "unrelated"
             }
         ];
 
@@ -382,24 +364,23 @@
                 
                 const f = parseFloat(document.getElementById('gc-freq').value);
                 const L = parseFloat(document.getElementById('gc-length').value);
-                const L_mH = parseFloat(document.getElementById('gc-l').value);
-                const C_uF = parseFloat(document.getElementById('gc-c').value);
-
-                // Convert L and C to reactance and susceptance
-                const x = 2 * PI * f * (L_mH * 1e-3);
-                const y_sus = 2 * PI * f * (C_uF * 1e-6);
+                const r = parseFloat(document.getElementById('gc-rz').value);
+                const x = parseFloat(document.getElementById('gc-xz').value);
+                const y_sus = parseFloat(document.getElementById('gc-y').value);
+                const isTotal = document.getElementById('gc-total-toggle').checked;
 
                 const config = {
-                    phase: parseInt(document.getElementById('gc-phase').value),
+                    phase: 3, // Default: 3-phase (the most common case across these problems)
                     f: f,
                     L: L,
-                    r: parseFloat(document.getElementById('gc-r').value),
+                    r: r,
                     x: x,
                     y_sus: y_sus,
                     pr_mw: parseFloat(document.getElementById('gc-p').value),
                     vr_kv: parseFloat(document.getElementById('gc-v').value),
                     pf: parseFloat(document.getElementById('gc-pf').value),
-                    modelOverride: L >= 80 && L <= 250 ? document.getElementById('gc-model').value : null
+                    isTotalImpedance: isTotal,
+                    modelOverride: null // Auto-classify by length; defaults medium lines to Nominal Pi
                 };
 
                 const res = calculateLineParameters(config);
@@ -472,8 +453,8 @@
                     if (prob.type === 'calc') {
                         const res = calculateLineParameters(prob.config);
                         document.getElementById(`type-prob-${prob.id}`).innerText = res.lineType;
-                        document.getElementById(`vs-prob-${prob.id}`).innerText = res.vs_kv.toFixed(2) + " kV";
-                        document.getElementById(`is-prob-${prob.id}`).innerText = res.is_a.toFixed(2) + " A";
+                        document.getElementById(`vs-prob-${prob.id}`).innerText = formatPhasor(res.vs_kv, res.vs_angle_deg, "kV");
+                        document.getElementById(`is-prob-${prob.id}`).innerText = formatPhasor(res.is_a, res.is_angle_deg, "A");
                         document.getElementById(`ps-prob-${prob.id}`).innerText = res.ps_mw.toFixed(2) + " MW";
                         document.getElementById(`pf-prob-${prob.id}`).innerText = res.pfs.toFixed(4) + " Lag";
                         document.getElementById(`vr-prob-${prob.id}`).innerText = res.v_reg.toFixed(2) + " %";
@@ -490,8 +471,8 @@
         function displayResults(containerId, res, prefix) {
             document.getElementById(containerId).classList.remove('hidden');
             document.getElementById(`${prefix}-classification`).innerText = res.lineType;
-            document.getElementById(`${prefix}-vs`).innerText = res.vs_kv.toFixed(2) + " kV";
-            document.getElementById(`${prefix}-is`).innerText = res.is_a.toFixed(2) + " A";
+            document.getElementById(`${prefix}-vs`).innerText = formatPhasor(res.vs_kv, res.vs_angle_deg, "kV");
+            document.getElementById(`${prefix}-is`).innerText = formatPhasor(res.is_a, res.is_angle_deg, "A");
             document.getElementById(`${prefix}-ps`).innerText = res.ps_mw.toFixed(2) + " MW";
             document.getElementById(`${prefix}-pfs`).innerText = res.pfs.toFixed(4) + " Lag";
             document.getElementById(`${prefix}-vr`).innerText = res.v_reg.toFixed(2) + " %";
