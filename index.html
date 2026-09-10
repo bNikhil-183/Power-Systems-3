@@ -104,6 +104,10 @@
                 <h4 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Results (<span id="res-classification" class="text-blue-600"></span>)</h4>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Receiving-End Current</div>
+                        <div class="text-xl font-bold text-slate-900" id="res-ir">-- A</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
                         <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Sending Voltage</div>
                         <div class="text-xl font-bold text-slate-900" id="res-vs">-- kV</div>
                     </div>
@@ -112,8 +116,16 @@
                         <div class="text-xl font-bold text-slate-900" id="res-is">-- A</div>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Sending Power</div>
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Sending Active Power</div>
                         <div class="text-xl font-bold text-slate-900" id="res-ps">-- MW</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Sending Reactive Power</div>
+                        <div class="text-xl font-bold text-slate-900" id="res-qs">-- MVAR</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Sending Apparent Power</div>
+                        <div class="text-xl font-bold text-slate-900" id="res-ss">-- MVA</div>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
                         <div class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Power Factor</div>
@@ -299,6 +311,12 @@
             let ps_watts = phase === 3 ? 3 * vs_mag * is_mag * pfs : vs_mag * is_mag * pfs;
             let ps_mw = ps_watts / 1e6;
 
+            // Sending End Reactive & Apparent Power
+            let qs_var = phase === 3 ? 3 * vs_mag * is_mag * Math.sin(pfs_angle) : vs_mag * is_mag * Math.sin(pfs_angle);
+            let qs_mvar = qs_var / 1e6;
+            let ss_va = phase === 3 ? 3 * vs_mag * is_mag : vs_mag * is_mag;
+            let ss_mva = ss_va / 1e6;
+
             // Voltage Regulation
             let vr_no_load = vs_mag / A.mag();
             let v_reg = ((vr_no_load - vr_mag_ph) / vr_mag_ph) * 100;
@@ -308,11 +326,14 @@
 
             return {
                 lineType,
+                ir_a: ir_mag,
                 vs_kv: vs_line_kv,
                 vs_angle_deg: vs_angle * 180 / PI,
                 is_a: is_mag,
                 is_angle_deg: is_angle * 180 / PI,
                 ps_mw: ps_mw,
+                qs_mvar: qs_mvar,
+                ss_mva: ss_mva,
                 pfs: pfs,
                 v_reg: v_reg,
                 eff: eff
@@ -414,6 +435,10 @@
                         <h5 class="text-sm font-bold text-slate-700 mb-3">Calculated Sending-End Parameters (<span id="type-prob-${prob.id}" class="text-indigo-600"></span>):</h5>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                             <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Receiving Current (Ir)</div>
+                                <div class="text-lg font-semibold" id="ir-prob-${prob.id}">--</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
                                 <div class="text-[10px] text-slate-500 uppercase font-bold">Voltage (Vs)</div>
                                 <div class="text-lg font-semibold" id="vs-prob-${prob.id}">--</div>
                             </div>
@@ -422,8 +447,16 @@
                                 <div class="text-lg font-semibold" id="is-prob-${prob.id}">--</div>
                             </div>
                             <div class="bg-slate-50 p-3 rounded border border-slate-100">
-                                <div class="text-[10px] text-slate-500 uppercase font-bold">Power (Ps)</div>
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Active Power (Ps)</div>
                                 <div class="text-lg font-semibold" id="ps-prob-${prob.id}">--</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Reactive Power (Qs)</div>
+                                <div class="text-lg font-semibold" id="qs-prob-${prob.id}">--</div>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100">
+                                <div class="text-[10px] text-slate-500 uppercase font-bold">Apparent Power (Ss)</div>
+                                <div class="text-lg font-semibold" id="ss-prob-${prob.id}">--</div>
                             </div>
                             <div class="bg-slate-50 p-3 rounded border border-slate-100">
                                 <div class="text-[10px] text-slate-500 uppercase font-bold">Power Factor</div>
@@ -453,9 +486,12 @@
                     if (prob.type === 'calc') {
                         const res = calculateLineParameters(prob.config);
                         document.getElementById(`type-prob-${prob.id}`).innerText = res.lineType;
+                        document.getElementById(`ir-prob-${prob.id}`).innerText = res.ir_a.toFixed(2) + " A";
                         document.getElementById(`vs-prob-${prob.id}`).innerText = formatPhasor(res.vs_kv, res.vs_angle_deg, "kV");
                         document.getElementById(`is-prob-${prob.id}`).innerText = formatPhasor(res.is_a, res.is_angle_deg, "A");
                         document.getElementById(`ps-prob-${prob.id}`).innerText = res.ps_mw.toFixed(2) + " MW";
+                        document.getElementById(`qs-prob-${prob.id}`).innerText = res.qs_mvar.toFixed(2) + " MVAR";
+                        document.getElementById(`ss-prob-${prob.id}`).innerText = res.ss_mva.toFixed(2) + " MVA";
                         document.getElementById(`pf-prob-${prob.id}`).innerText = res.pfs.toFixed(4) + " Lag";
                         document.getElementById(`vr-prob-${prob.id}`).innerText = res.v_reg.toFixed(2) + " %";
                         document.getElementById(`eff-prob-${prob.id}`).innerText = res.eff.toFixed(2) + " %";
@@ -471,9 +507,12 @@
         function displayResults(containerId, res, prefix) {
             document.getElementById(containerId).classList.remove('hidden');
             document.getElementById(`${prefix}-classification`).innerText = res.lineType;
+            document.getElementById(`${prefix}-ir`).innerText = res.ir_a.toFixed(2) + " A";
             document.getElementById(`${prefix}-vs`).innerText = formatPhasor(res.vs_kv, res.vs_angle_deg, "kV");
             document.getElementById(`${prefix}-is`).innerText = formatPhasor(res.is_a, res.is_angle_deg, "A");
             document.getElementById(`${prefix}-ps`).innerText = res.ps_mw.toFixed(2) + " MW";
+            document.getElementById(`${prefix}-qs`).innerText = res.qs_mvar.toFixed(2) + " MVAR";
+            document.getElementById(`${prefix}-ss`).innerText = res.ss_mva.toFixed(2) + " MVA";
             document.getElementById(`${prefix}-pfs`).innerText = res.pfs.toFixed(4) + " Lag";
             document.getElementById(`${prefix}-vr`).innerText = res.v_reg.toFixed(2) + " %";
             document.getElementById(`${prefix}-eff`).innerText = res.eff.toFixed(2) + " %";
