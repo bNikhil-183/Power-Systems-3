@@ -1,8 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Power Systems Assignment 3 Analyzer</title>
@@ -13,6 +16,7 @@
         rel="stylesheet">
 
     <style>
+
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -25,156 +29,341 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
     </style>
+
 </head>
+
 
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen p-4 md:p-8">
 
-    <div class="max-w-6xl mx-auto space-y-8">
 
-        <!-- HEADER -->
-        <header class="text-center space-y-4">
-
-            <h1 class="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight">
-                Group 4 Power Systems Assignment 3
-            </h1>
-
-            <h2 class="text-xl md:text-2xl font-medium text-blue-600">
-                Transmission Line Sending-End Parameter Analyzer
-            </h2>
-
-        </header>
+<div class="max-w-6xl mx-auto space-y-8">
 
 
-        <!-- PROBLEM STATEMENT -->
-        <section
-            class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+    <!-- HEADER -->
 
-            <div>
+    <header class="text-center space-y-4">
 
-                <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">
-                    Generalized Problem Statement
-                </h3>
+        <h1 class="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight">
+            Group 4 Power Systems Assignment 3
+        </h1>
 
-                <p class="text-slate-600 italic">
+        <h2 class="text-xl md:text-2xl font-medium text-blue-600">
+            Transmission Line Sending-End Parameter Analyzer
+        </h2>
 
-                    "A transmission line L km long has a series impedance of Z ohm/km
-                    and a total shunt admittance of Y mho. The receiving-end load is
-                    P<sub>R</sub> MW at V<sub>R</sub> kV with m power factor.
-                    Calculate voltage, current, power and power factor at the
-                    sending-end. Also calculate the voltage regulation and
-                    transmission efficiency."
-
-                </p>
-
-            </div>
+    </header>
 
 
-            <!-- LINE CLASSIFICATION -->
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
 
-                <h3 class="font-semibold text-blue-800 mb-2">
-                    Automatic Transmission Line Classification
-                </h3>
+    <!-- GENERALIZED PROBLEM STATEMENT -->
 
-                <ul class="list-disc list-inside text-sm text-blue-900 space-y-1">
+    <section
+        class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
 
-                    <li>
-                        <strong>Short Line:</strong>
-                        L &lt; 80 km
-                        — A = D = 1, B = Z, C = 0
-                    </li>
+        <div>
 
-                    <li>
-                        <strong>Medium Line:</strong>
-                        80 ≤ L ≤ 250 km
-                        — Nominal π model
-                    </li>
-
-                    <li>
-                        <strong>Long Line:</strong>
-                        L &gt; 250 km
-                        — Exact distributed parameter model
-                    </li>
-
-                </ul>
-
-            </div>
-
-        </section>
-
-
-        <!-- CALCULATOR -->
-        <section
-            class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-
-            <h3 class="text-xl font-bold text-slate-800 mb-6">
-                General Calculator
+            <h3 class="text-lg font-bold text-slate-800 mb-2 border-b pb-2">
+                Generalized Problem Statement
             </h3>
 
+            <p class="text-slate-600 italic">
 
-            <form id="general-calc-form"
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                "A 50 Hz transmission line L km long has a series impedance of
+                Z ohm/km and a total shunt admittance of Y mho. The receiving-end
+                load is P<sub>R</sub> MW at V<sub>R</sub> kV with m power factor.
+                Calculate voltage, current, power and power factor at the
+                sending-end. Also calculate the voltage regulation of the line
+                and transmission efficiency."
+
+            </p>
+
+        </div>
 
 
-                <!-- SYSTEM PARAMETERS -->
-                <div class="space-y-4">
 
-                    <h4 class="font-semibold text-slate-700">
-                        System Parameters
-                    </h4>
+        <!-- LINE CLASSIFICATION -->
+
+        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+
+            <h3 class="font-semibold text-blue-800 mb-2">
+                Transmission Line Classification Logic:
+            </h3>
+
+            <ul class="list-disc list-inside text-sm text-blue-900 space-y-1">
+
+                <li>
+                    <strong>Short Line:</strong>
+                    Length &lt; 80 km
+                    (Shunt admittance neglected)
+                </li>
+
+                <li>
+                    <strong>Medium Line:</strong>
+                    80 &le; Length &le; 250 km
+                    (Nominal &pi; model)
+                </li>
+
+                <li>
+                    <strong>Long Line:</strong>
+                    Length &gt; 250 km
+                    (Exact distributed parameter model)
+                </li>
+
+            </ul>
+
+        </div>
+
+    </section>
 
 
-                    <div>
 
-                        <label class="block text-sm font-medium mb-1">
-                            Frequency (Hz)
-                        </label>
+    <!-- GENERAL CALCULATOR -->
 
-                        <input type="number"
-                            id="gc-freq"
-                            value="50"
-                            step="any"
-                            min="0"
+    <section
+        class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+
+        <h3 class="text-xl font-bold text-slate-800 mb-6">
+            General Calculator
+        </h3>
+
+
+
+        <form id="general-calc-form"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+
+
+            <!-- SYSTEM PARAMETERS -->
+
+            <div class="space-y-4">
+
+                <h4 class="font-semibold text-slate-700">
+                    System Parameters
+                </h4>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        Frequency (Hz)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="gc-freq"
+                        value="50"
+                        step="any"
+                        min="0"
+                        class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        Length L (km)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="gc-length"
+                        value="140"
+                        step="any"
+                        min="0"
+                        class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        System Type
+                    </label>
+
+                    <select
+                        id="gc-phase"
+                        class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500">
+
+                        <option value="3" selected>
+                            3-Phase
+                        </option>
+
+                        <option value="1">
+                            Single Phase
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- LINE CONSTANTS -->
+
+            <div class="space-y-4">
+
+                <h4 class="font-semibold text-slate-700">
+                    Line Constants
+                </h4>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        Series Impedance &mdash; Resistance R (&Omega; or &Omega;/km)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="gc-rz"
+                        value="0.1"
+                        step="any"
+                        min="0"
+                        class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        Series Impedance &mdash; Reactance X (&Omega; or &Omega;/km)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="gc-xz"
+                        value="1"
+                        step="any"
+                        class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        Shunt Admittance Y (mho or mho/km)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="gc-y"
+                        value="0.0000028"
+                        step="any"
+                        min="0"
+                        class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
+                        required>
+
+                </div>
+
+
+                <div class="flex items-start gap-2 pt-1">
+
+                    <input
+                        type="checkbox"
+                        id="gc-total-toggle"
+                        class="mt-1 rounded border-slate-300 focus:ring-2 focus:ring-blue-500">
+
+                    <label
+                        for="gc-total-toggle"
+                        class="text-sm font-medium leading-snug">
+
+                        Values above are TOTAL for the whole line
+                        (leave unchecked if they are per-km values)
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- RECEIVING-END LOAD -->
+
+            <div class="space-y-4">
+
+                <h4 class="font-semibold text-slate-700">
+                    Receiving-End Load
+                </h4>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        Power (MW)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="gc-p"
+                        value="20"
+                        step="any"
+                        min="0"
+                        class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        Voltage (kV)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="gc-v"
+                        value="220"
+                        step="any"
+                        min="0"
+                        class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
+                        required>
+
+                </div>
+
+
+                <div>
+
+                    <label class="block text-sm font-medium mb-1">
+                        Power Factor
+                    </label>
+
+                    <div class="grid grid-cols-2 gap-2">
+
+                        <input
+                            type="number"
+                            id="gc-pf"
+                            value="0.5"
+                            step="0.01"
+                            min="0.01"
+                            max="1"
                             class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
                             required>
 
-                    </div>
 
-
-                    <div>
-
-                        <label class="block text-sm font-medium mb-1">
-                            Length L (km)
-                        </label>
-
-                        <input type="number"
-                            id="gc-length"
-                            value="140"
-                            step="any"
-                            min="0"
-                            class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
-                            required>
-
-                    </div>
-
-
-                    <!-- PHASE -->
-                    <div>
-
-                        <label class="block text-sm font-medium mb-1">
-                            System Type
-                        </label>
-
-                        <select id="gc-phase"
+                        <select
+                            id="gc-pf-type"
                             class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500">
 
-                            <option value="3" selected>
-                                3-Phase
+                            <option value="lagging" selected>
+                                Lagging
                             </option>
 
-                            <option value="1">
-                                Single Phase
+                            <option value="leading">
+                                Leading
                             </option>
 
                         </select>
@@ -183,433 +372,135 @@
 
                 </div>
 
-
-
-                <!-- LINE CONSTANTS -->
-                <div class="space-y-4">
-
-                    <h4 class="font-semibold text-slate-700">
-                        Line Constants
-                    </h4>
-
-
-                    <div>
-
-                        <label class="block text-sm font-medium mb-1">
-                            Series Resistance R (Ω/km)
-                        </label>
-
-                        <input type="number"
-                            id="gc-rz"
-                            value="0.1"
-                            step="any"
-                            min="0"
-                            class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
-                            required>
-
-                    </div>
-
-
-                    <div>
-
-                        <label class="block text-sm font-medium mb-1">
-                            Series Reactance X (Ω/km)
-                        </label>
-
-                        <input type="number"
-                            id="gc-xz"
-                            value="1"
-                            step="any"
-                            class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
-                            required>
-
-                    </div>
-
-
-                    <div>
-
-                        <label class="block text-sm font-medium mb-1">
-                            Shunt Susceptance B (S/km)
-                        </label>
-
-                        <input type="number"
-                            id="gc-y"
-                            value="0.0000028"
-                            step="any"
-                            min="0"
-                            class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
-                            required>
-
-                    </div>
-
-
-                    <div class="flex items-start gap-2 pt-1">
-
-                        <input type="checkbox"
-                            id="gc-total-toggle"
-                            class="mt-1 rounded border-slate-300 focus:ring-2 focus:ring-blue-500">
-
-                        <label for="gc-total-toggle"
-                            class="text-sm font-medium leading-snug">
-
-                            Values above are TOTAL values for the entire line
-
-                            <span class="block text-xs text-slate-500 mt-1">
-                                Leave unchecked if R, X and B are specified per km.
-                            </span>
-
-                        </label>
-
-                    </div>
-
-                </div>
+            </div>
 
 
 
-                <!-- RECEIVING LOAD -->
-                <div class="space-y-4">
+            <!-- BUTTON -->
 
-                    <h4 class="font-semibold text-slate-700">
-                        Receiving-End Load
-                    </h4>
+            <div class="md:col-span-2 lg:col-span-3 pt-4">
 
+                <button
+                    type="submit"
+                    class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition duration-200">
 
-                    <div>
+                    Calculate Sending-End Parameters
 
-                        <label class="block text-sm font-medium mb-1">
-                            Active Power P<sub>R</sub> (MW)
-                        </label>
+                </button>
 
-                        <input type="number"
-                            id="gc-p"
-                            value="20"
-                            step="any"
-                            min="0"
-                            class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
-                            required>
+            </div>
 
-                    </div>
+        </form>
 
 
-                    <div>
 
-                        <label class="block text-sm font-medium mb-1">
-                            Receiving Voltage V<sub>R</sub> (kV)
-                        </label>
+        <!-- RESULTS -->
 
-                        <input type="number"
-                            id="gc-v"
-                            value="220"
-                            step="any"
-                            min="0"
-                            class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
-                            required>
-
-                    </div>
+        <div
+            id="gc-results"
+            class="hidden mt-8 bg-slate-50 border border-slate-200 rounded-xl p-6">
 
 
-                    <!-- PF -->
-                    <div>
+            <!-- MODEL -->
 
-                        <label class="block text-sm font-medium mb-1">
-                            Power Factor
-                        </label>
+            <h4 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">
 
-                        <div class="grid grid-cols-2 gap-2">
+                Results
+                (<span
+                    id="res-classification"
+                    class="text-blue-600">
+                </span>)
 
-                            <input type="number"
-                                id="gc-pf"
-                                value="0.8"
-                                step="0.01"
-                                min="0.01"
-                                max="1"
-                                class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500"
-                                required>
+            </h4>
 
-                            <select id="gc-pf-type"
-                                class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-blue-500">
 
-                                <option value="lagging" selected>
-                                    Lagging
-                                </option>
 
-                                <option value="leading">
-                                    Leading
-                                </option>
+            <!-- ABCD PARAMETERS -->
 
-                            </select>
+            <div class="mb-6">
 
+                <h5 class="text-sm font-bold text-slate-700 mb-3">
+                    ABCD Parameters
+                </h5>
+
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+
+                    <!-- A -->
+
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+                            A
                         </div>
 
-                    </div>
-
-                </div>
-
-
-
-                <!-- BUTTON -->
-                <div class="md:col-span-2 lg:col-span-3 pt-4">
-
-                    <button type="submit"
-                        class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition duration-200">
-
-                        Calculate Sending-End Parameters
-
-                    </button>
-
-                </div>
-
-            </form>
-
-
-
-            <!-- RESULTS -->
-            <div id="gc-results"
-                class="hidden mt-8 bg-slate-50 border border-slate-200 rounded-xl p-6">
-
-
-                <!-- MODEL -->
-                <div class="mb-6">
-
-                    <h4 class="text-lg font-bold text-slate-800 mb-3 border-b pb-2">
-                        Transmission Line Model
-                    </h4>
-
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-
-                        <div class="text-sm text-blue-700 font-semibold">
-                            Model Used
-                        </div>
-
-                        <div id="res-classification"
-                            class="text-2xl font-bold text-blue-900 mt-1">
+                        <div
+                            class="text-lg font-semibold text-slate-900 mt-1"
+                            id="res-a">
                             --
                         </div>
 
                     </div>
 
-                </div>
 
 
+                    <!-- B -->
 
-                <!-- ABCD PARAMETERS -->
-                <div class="mb-6">
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
 
-                    <h4 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">
-                        ABCD Parameters
-                    </h4>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-
-                        <!-- A -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                A Parameter
-                            </div>
-
-                            <div id="res-a"
-                                class="text-xl font-bold text-slate-900 mt-1">
-                                --
-                            </div>
-
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+                            B
                         </div>
 
-
-                        <!-- B -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                B Parameter
-                            </div>
-
-                            <div id="res-b"
-                                class="text-xl font-bold text-slate-900 mt-1">
-                                --
-                            </div>
-
-                        </div>
-
-
-                        <!-- C -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                C Parameter
-                            </div>
-
-                            <div id="res-c"
-                                class="text-xl font-bold text-slate-900 mt-1">
-                                --
-                            </div>
-
-                        </div>
-
-
-                        <!-- D -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                D Parameter
-                            </div>
-
-                            <div id="res-d"
-                                class="text-xl font-bold text-slate-900 mt-1">
-                                --
-                            </div>
-
+                        <div
+                            class="text-lg font-semibold text-slate-900 mt-1"
+                            id="res-b">
+                            --
                         </div>
 
                     </div>
 
-                </div>
 
 
+                    <!-- C -->
 
-                <!-- ELECTRICAL RESULTS -->
-                <div>
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
 
-                    <h4 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">
-                        Sending-End Results
-                    </h4>
-
-
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-
-
-                        <!-- RECEIVING CURRENT -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Receiving-End Current
-                            </div>
-
-                            <div class="text-xl font-bold text-slate-900"
-                                id="res-ir">
-                                -- A
-                            </div>
-
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+                            C
                         </div>
 
-
-                        <!-- SENDING VOLTAGE -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Sending Voltage
-                            </div>
-
-                            <div class="text-xl font-bold text-slate-900"
-                                id="res-vs">
-                                -- kV
-                            </div>
-
+                        <div
+                            class="text-lg font-semibold text-slate-900 mt-1"
+                            id="res-c">
+                            --
                         </div>
 
+                    </div>
 
-                        <!-- SENDING CURRENT -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
 
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Sending Current
-                            </div>
 
-                            <div class="text-xl font-bold text-slate-900"
-                                id="res-is">
-                                -- A
-                            </div>
+                    <!-- D -->
 
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+                            D
                         </div>
 
-
-                        <!-- ACTIVE POWER -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Sending Active Power
-                            </div>
-
-                            <div class="text-xl font-bold text-slate-900"
-                                id="res-ps">
-                                -- MW
-                            </div>
-
-                        </div>
-
-
-                        <!-- REACTIVE POWER -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Sending Reactive Power
-                            </div>
-
-                            <div class="text-xl font-bold text-slate-900"
-                                id="res-qs">
-                                -- MVAR
-                            </div>
-
-                        </div>
-
-
-                        <!-- APPARENT POWER -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Sending Apparent Power
-                            </div>
-
-                            <div class="text-xl font-bold text-slate-900"
-                                id="res-ss">
-                                -- MVA
-                            </div>
-
-                        </div>
-
-
-                        <!-- PF -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Sending Power Factor
-                            </div>
-
-                            <div class="text-xl font-bold text-slate-900"
-                                id="res-pfs">
-                                --
-                            </div>
-
-                        </div>
-
-
-                        <!-- REGULATION -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Voltage Regulation
-                            </div>
-
-                            <div class="text-xl font-bold text-blue-600"
-                                id="res-vr">
-                                -- %
-                            </div>
-
-                        </div>
-
-
-                        <!-- EFFICIENCY -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
-
-                            <div class="text-xs text-slate-500 uppercase font-semibold">
-                                Transmission Efficiency
-                            </div>
-
-                            <div class="text-xl font-bold text-green-600"
-                                id="res-eff">
-                                -- %
-                            </div>
-
+                        <div
+                            class="text-lg font-semibold text-slate-900 mt-1"
+                            id="res-d">
+                            --
                         </div>
 
                     </div>
@@ -618,1128 +509,1553 @@
 
             </div>
 
-        </section>
-
-    </div>
 
 
+            <!-- SENDING END RESULTS -->
 
-    <script>
+            <div>
 
-        /* =========================================================
-           COMPLEX NUMBER CLASS
-        ========================================================= */
-
-        class Complex {
-
-            constructor(re, im = 0) {
-                this.re = re;
-                this.im = im;
-            }
+                <h5 class="text-sm font-bold text-slate-700 mb-3">
+                    Calculated Sending-End Parameters
+                </h5>
 
 
-            add(other) {
-                return new Complex(
-                    this.re + other.re,
-                    this.im + other.im
-                );
-            }
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
 
 
-            sub(other) {
-                return new Complex(
-                    this.re - other.re,
-                    this.im - other.im
-                );
-            }
+                    <!-- RECEIVING CURRENT -->
+
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+
+                            Receiving-End Current
+
+                        </div>
+
+                        <div
+                            class="text-xl font-bold text-slate-900"
+                            id="res-ir">
+                            -- A
+                        </div>
+
+                    </div>
 
 
-            mul(other) {
-                return new Complex(
-                    this.re * other.re - this.im * other.im,
-                    this.re * other.im + this.im * other.re
-                );
-            }
+
+                    <!-- SENDING VOLTAGE -->
+
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+
+                            Sending Voltage
+
+                        </div>
+
+                        <div
+                            class="text-xl font-bold text-slate-900"
+                            id="res-vs">
+                            -- kV
+                        </div>
+
+                    </div>
 
 
-            div(other) {
 
-                const denominator =
-                    other.re * other.re +
-                    other.im * other.im;
+                    <!-- SENDING CURRENT -->
 
-                if (denominator === 0) {
-                    throw new Error("Division by zero in complex calculation.");
-                }
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
 
-                return new Complex(
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
 
-                    (this.re * other.re +
-                        this.im * other.im) / denominator,
+                            Sending Current
 
-                    (this.im * other.re -
-                        this.re * other.im) / denominator
+                        </div>
 
-                );
-            }
+                        <div
+                            class="text-xl font-bold text-slate-900"
+                            id="res-is">
+                            -- A
+                        </div>
 
-
-            mag() {
-
-                return Math.sqrt(
-                    this.re * this.re +
-                    this.im * this.im
-                );
-
-            }
+                    </div>
 
 
-            arg() {
 
-                return Math.atan2(
-                    this.im,
-                    this.re
-                );
+                    <!-- ACTIVE POWER -->
 
-            }
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
 
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
 
-            sqrt() {
+                            Sending Active Power
 
-                const magnitude = Math.sqrt(this.mag());
+                        </div>
 
-                const angle = this.arg() / 2;
+                        <div
+                            class="text-xl font-bold text-slate-900"
+                            id="res-ps">
+                            -- MW
+                        </div>
 
-                return Complex.fromPolar(
-                    magnitude,
-                    angle
-                );
-
-            }
+                    </div>
 
 
-            cosh() {
 
-                const x = this.re;
-                const y = this.im;
+                    <!-- REACTIVE POWER -->
 
-                return new Complex(
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
 
-                    Math.cosh(x) * Math.cos(y),
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
 
-                    Math.sinh(x) * Math.sin(y)
+                            Sending Reactive Power
 
-                );
+                        </div>
 
-            }
+                        <div
+                            class="text-xl font-bold text-slate-900"
+                            id="res-qs">
+                            -- MVAR
+                        </div>
 
-
-            sinh() {
-
-                const x = this.re;
-                const y = this.im;
-
-                return new Complex(
-
-                    Math.sinh(x) * Math.cos(y),
-
-                    Math.cosh(x) * Math.sin(y)
-
-                );
-
-            }
+                    </div>
 
 
-            static fromPolar(r, theta) {
 
-                return new Complex(
+                    <!-- APPARENT POWER -->
 
-                    r * Math.cos(theta),
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
 
-                    r * Math.sin(theta)
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
 
-                );
+                            Sending Apparent Power
 
-            }
+                        </div>
+
+                        <div
+                            class="text-xl font-bold text-slate-900"
+                            id="res-ss">
+                            -- MVA
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- POWER FACTOR -->
+
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+
+                            Power Factor
+
+                        </div>
+
+                        <div
+                            class="text-xl font-bold text-slate-900"
+                            id="res-pfs">
+                            --
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- VOLTAGE REGULATION -->
+
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+
+                            Voltage Regulation
+
+                        </div>
+
+                        <div
+                            class="text-xl font-bold text-blue-600"
+                            id="res-vr">
+                            -- %
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- EFFICIENCY -->
+
+                    <div
+                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+
+                        <div
+                            class="text-xs text-slate-500 uppercase font-semibold tracking-wider">
+
+                            Efficiency
+
+                        </div>
+
+                        <div
+                            class="text-xl font-bold text-green-600"
+                            id="res-eff">
+                            -- %
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================================
+   COMPLEX NUMBER CLASS
+========================================================= */
+
+class Complex {
+
+    constructor(re, im = 0) {
+
+        this.re = re;
+        this.im = im;
+
+    }
+
+
+    add(other) {
+
+        return new Complex(
+            this.re + other.re,
+            this.im + other.im
+        );
+
+    }
+
+
+    sub(other) {
+
+        return new Complex(
+            this.re - other.re,
+            this.im - other.im
+        );
+
+    }
+
+
+    mul(other) {
+
+        return new Complex(
+
+            this.re * other.re -
+            this.im * other.im,
+
+            this.re * other.im +
+            this.im * other.re
+
+        );
+
+    }
+
+
+    div(other) {
+
+        const denominator =
+            other.re * other.re +
+            other.im * other.im;
+
+
+        if (denominator === 0) {
+
+            throw new Error(
+                "Division by zero in complex calculation."
+            );
 
         }
 
 
+        return new Complex(
 
-        const PI = Math.PI;
+            (
+                this.re * other.re +
+                this.im * other.im
+            ) / denominator,
 
+            (
+                this.im * other.re -
+                this.re * other.im
+            ) / denominator
 
+        );
 
-        /* =========================================================
-           LINE CALCULATION
-        ========================================================= */
+    }
 
-        function calculateLineParameters(config) {
 
-            const {
+    mag() {
 
-                phase,
-                L,
-                r,
-                x,
-                y_sus,
-                pr_mw,
-                vr_kv,
-                pf,
-                pfType,
-                isTotalImpedance
+        return Math.sqrt(
 
-            } = config;
+            this.re * this.re +
+            this.im * this.im
 
+        );
 
+    }
 
-            /* -----------------------------------------------------
-               BASIC VALIDATION
-            ----------------------------------------------------- */
 
-            if (L < 0) {
-                throw new Error("Line length cannot be negative.");
-            }
+    arg() {
 
-            if (pf <= 0 || pf > 1) {
-                throw new Error("Power factor must be between 0 and 1.");
-            }
+        return Math.atan2(
+            this.im,
+            this.re
+        );
 
+    }
 
 
-            /* -----------------------------------------------------
-               TOTAL Z AND Y
-            ----------------------------------------------------- */
+    sqrt() {
 
-            let Z_total;
-            let Y_total;
+        const magnitude =
+            Math.sqrt(this.mag());
 
 
-            if (isTotalImpedance) {
+        const angle =
+            this.arg() / 2;
 
-                // User has entered total line values
 
-                Z_total = new Complex(r, x);
+        return Complex.fromPolar(
+            magnitude,
+            angle
+        );
 
-                // Shunt admittance = jB
+    }
 
-                Y_total = new Complex(0, y_sus);
 
-            }
+    cosh() {
 
-            else {
+        const x = this.re;
+        const y = this.im;
 
-                // User has entered per-km values
 
-                Z_total = new Complex(
-                    r * L,
-                    x * L
-                );
+        return new Complex(
 
+            Math.cosh(x) * Math.cos(y),
 
-                Y_total = new Complex(
-                    0,
-                    y_sus * L
-                );
+            Math.sinh(x) * Math.sin(y)
 
-            }
+        );
 
+    }
 
 
-            /* -----------------------------------------------------
-               AUTOMATIC LINE MODEL
-            ----------------------------------------------------- */
+    sinh() {
 
-            let effectiveModel;
-            let lineType;
+        const x = this.re;
+        const y = this.im;
 
 
-            if (L < 80) {
+        return new Complex(
 
-                effectiveModel = "short";
+            Math.sinh(x) * Math.cos(y),
 
-                lineType = "Short Line Model";
+            Math.cosh(x) * Math.sin(y)
 
-            }
+        );
 
-            else if (L <= 250) {
+    }
 
-                effectiveModel = "pi";
 
-                lineType = "Medium Line — Nominal π Model";
+    static fromPolar(r, theta) {
 
-            }
+        return new Complex(
 
-            else {
+            r * Math.cos(theta),
 
-                effectiveModel = "long";
+            r * Math.sin(theta)
 
-                lineType = "Long Line — Exact Distributed Model";
+        );
 
-            }
+    }
 
+}
 
 
-            /* -----------------------------------------------------
-               ABCD PARAMETERS
-            ----------------------------------------------------- */
 
-            let A;
-            let B;
-            let C;
-            let D;
+/* =========================================================
+   CONSTANT
+========================================================= */
 
+const PI = Math.PI;
 
 
-            /* SHORT LINE */
 
-            if (effectiveModel === "short") {
+/* =========================================================
+   CALCULATE LINE PARAMETERS
+========================================================= */
 
-                A = new Complex(1, 0);
+function calculateLineParameters(config) {
 
-                B = Z_total;
 
-                C = new Complex(0, 0);
+    const {
 
-                D = new Complex(1, 0);
+        phase,
+        f,
+        L,
+        r,
+        x,
+        y_sus,
+        pr_mw,
+        vr_kv,
+        pf,
+        pfType,
+        isTotalImpedance
 
-            }
+    } = config;
 
 
 
-            /* NOMINAL PI */
+    /* ---------------------------------------------------------
+       VALIDATION
+    --------------------------------------------------------- */
 
-            else if (effectiveModel === "pi") {
+    if (L <= 0) {
 
-                const ZY = Z_total.mul(Y_total);
+        throw new Error(
+            "Line length must be greater than zero."
+        );
 
-                const ZY2 =
-                    ZY.div(new Complex(2, 0));
+    }
 
-                const ZY4 =
-                    ZY.div(new Complex(4, 0));
 
+    if (pf <= 0 || pf > 1) {
 
-                A =
-                    new Complex(1, 0)
-                        .add(ZY2);
+        throw new Error(
+            "Power factor must be between 0 and 1."
+        );
 
+    }
 
-                D = A;
 
+    if (vr_kv <= 0) {
 
-                B = Z_total;
+        throw new Error(
+            "Receiving-end voltage must be greater than zero."
+        );
 
+    }
 
-                C =
-                    Y_total.mul(
-                        new Complex(1, 0)
-                            .add(ZY4)
-                    );
 
-            }
+    if (pr_mw < 0) {
 
+        throw new Error(
+            "Receiving-end power cannot be negative."
+        );
 
+    }
 
-            /* EXACT LONG LINE */
 
-            else {
 
-                const ZY =
-                    Z_total.mul(Y_total);
+    /* ---------------------------------------------------------
+       TOTAL SERIES IMPEDANCE AND SHUNT ADMITTANCE
+       
+       Z = R + jX
+       Y = jB
+    --------------------------------------------------------- */
 
+    let Z_total;
+    let Y_total;
 
-                const gammaL =
-                    ZY.sqrt();
 
+    if (isTotalImpedance) {
 
-                let Zc;
+        /*
+         * R and X are TOTAL line values.
+         *
+         * Y is also TOTAL line shunt admittance.
+         */
 
+        Z_total =
+            new Complex(r, x);
 
-                if (Y_total.mag() === 0) {
 
-                    Zc =
-                        new Complex(
-                            999999999,
-                            0
-                        );
+        Y_total =
+            new Complex(0, y_sus);
 
-                }
+    }
 
-                else {
+    else {
 
-                    Zc =
-                        Z_total
-                            .div(Y_total)
-                            .sqrt();
+        /*
+         * R, X and Y are specified per km.
+         *
+         * Total:
+         * Z = (R + jX)L
+         * Y = jBL
+         */
 
-                }
+        Z_total =
+            new Complex(
+                r * L,
+                x * L
+            );
 
 
-                A = gammaL.cosh();
+        Y_total =
+            new Complex(
+                0,
+                y_sus * L
+            );
 
-                D = A;
+    }
 
 
-                B =
-                    Zc.mul(
-                        gammaL.sinh()
-                    );
 
+    /* ---------------------------------------------------------
+       AUTOMATIC LINE MODEL SELECTION
+    --------------------------------------------------------- */
 
-                C =
-                    new Complex(1, 0)
-                        .div(Zc)
-                        .mul(
-                            gammaL.sinh()
-                        );
+    let effectiveModel;
+    let lineType;
 
-            }
 
+    if (L < 80) {
 
+        effectiveModel = "short";
 
-            /* -----------------------------------------------------
-               RECEIVING-END CURRENT
-            ----------------------------------------------------- */
+        lineType =
+            "Short Line Model";
 
-            let vr_phase;
+    }
 
+    else if (L <= 250) {
 
-            if (phase === 3) {
+        effectiveModel = "pi";
 
-                vr_phase =
-                    (vr_kv * 1000) /
-                    Math.sqrt(3);
+        lineType =
+            "Medium Line (Nominal Pi)";
 
-            }
+    }
 
-            else {
+    else {
 
-                vr_phase =
-                    vr_kv * 1000;
+        effectiveModel = "long";
 
-            }
+        lineType =
+            "Long Line (Exact Model)";
 
+    }
 
-            const pr_watts =
-                pr_mw * 1e6;
 
 
-            let ir_mag;
+    /* ---------------------------------------------------------
+       ABCD PARAMETERS
+    --------------------------------------------------------- */
 
+    let A;
+    let B;
+    let C;
+    let D;
 
-            if (phase === 3) {
 
-                ir_mag =
-                    pr_watts /
-                    (
-                        3 *
-                        vr_phase *
-                        pf
-                    );
 
-            }
+    /* =========================================================
+       SHORT LINE
+       
+       A = 1
+       B = Z
+       C = 0
+       D = 1
+    ========================================================= */
 
-            else {
+    if (effectiveModel === "short") {
 
-                ir_mag =
-                    pr_watts /
-                    (
-                        vr_phase *
-                        pf
-                    );
 
-            }
+        A =
+            new Complex(1, 0);
 
 
+        B =
+            Z_total;
 
-            /* -----------------------------------------------------
-               PF ANGLE
-            ----------------------------------------------------- */
 
-            const pfAngle =
-                Math.acos(pf);
+        C =
+            new Complex(0, 0);
 
 
-            let ir_angle;
+        D =
+            new Complex(1, 0);
 
+    }
 
-            if (pfType === "leading") {
 
-                ir_angle = +pfAngle;
 
-            }
+    /* =========================================================
+       MEDIUM LINE - NOMINAL PI
+       
+       A = D = 1 + YZ/2
+       B = Z
+       C = Y(1 + YZ/4)
+    ========================================================= */
 
-            else {
+    else if (effectiveModel === "pi") {
 
-                ir_angle = -pfAngle;
 
-            }
+        const ZY =
+            Z_total.mul(Y_total);
 
 
-            const VR =
+        const YZ2 =
+            ZY.div(
+                new Complex(2, 0)
+            );
+
+
+        const YZ4 =
+            ZY.div(
+                new Complex(4, 0)
+            );
+
+
+        A =
+            new Complex(1, 0)
+                .add(YZ2);
+
+
+        D = A;
+
+
+        B =
+            Z_total;
+
+
+        C =
+            Y_total.mul(
+
+                new Complex(1, 0)
+                    .add(YZ4)
+
+            );
+
+    }
+
+
+
+    /* =========================================================
+       LONG LINE - EXACT DISTRIBUTED MODEL
+       
+       A = D = cosh(γL)
+       B = Zc sinh(γL)
+       C = (1/Zc)sinh(γL)
+    ========================================================= */
+
+    else {
+
+
+        const ZY =
+            Z_total.mul(Y_total);
+
+
+        const gammaL =
+            ZY.sqrt();
+
+
+        let Zc;
+
+
+        if (Y_total.mag() === 0) {
+
+            Zc =
                 new Complex(
-                    vr_phase,
+                    999999999,
                     0
                 );
 
+        }
 
-            const IR =
-                Complex.fromPolar(
-                    ir_mag,
-                    ir_angle
+        else {
+
+            Zc =
+                Z_total
+                    .div(Y_total)
+                    .sqrt();
+
+        }
+
+
+        A =
+            gammaL.cosh();
+
+
+        D = A;
+
+
+        B =
+            Zc.mul(
+                gammaL.sinh()
+            );
+
+
+        C =
+            new Complex(1, 0)
+                .div(Zc)
+                .mul(
+                    gammaL.sinh()
                 );
 
+    }
 
 
-            /* -----------------------------------------------------
-               SENDING-END PHASORS
-            ----------------------------------------------------- */
 
-            // Vs = A Vr + B Ir
+    /* ---------------------------------------------------------
+       RECEIVING END PHASE VOLTAGE
+    --------------------------------------------------------- */
 
-            const VS =
-                A.mul(VR)
-                    .add(
-                        B.mul(IR)
-                    );
+    let vr_phase;
 
 
-            // Is = C Vr + D Ir
+    if (phase === 3) {
 
-            const IS =
-                C.mul(VR)
-                    .add(
-                        D.mul(IR)
-                    );
+        vr_phase =
+            (
+                vr_kv * 1000
+            ) /
+            Math.sqrt(3);
 
+    }
 
+    else {
 
-            /* -----------------------------------------------------
-               MAGNITUDES AND ANGLES
-            ----------------------------------------------------- */
+        vr_phase =
+            vr_kv * 1000;
 
-            const vs_mag =
-                VS.mag();
+    }
 
 
-            const vs_angle =
-                VS.arg();
 
+    /* ---------------------------------------------------------
+       RECEIVING END CURRENT
+    --------------------------------------------------------- */
 
-            const is_mag =
-                IS.mag();
+    const pr_watts =
+        pr_mw * 1e6;
 
 
-            const is_angle =
-                IS.arg();
+    let ir_mag;
 
 
-            let vs_line_kv;
+    if (phase === 3) {
 
-
-            if (phase === 3) {
-
-                vs_line_kv =
-                    (
-                        vs_mag *
-                        Math.sqrt(3)
-                    ) / 1000;
-
-            }
-
-            else {
-
-                vs_line_kv =
-                    vs_mag / 1000;
-
-            }
-
-
-
-            /* -----------------------------------------------------
-               SENDING-END POWER
-            ----------------------------------------------------- */
-
-            const sendingPowerAngle =
-                vs_angle - is_angle;
-
-
-            const sendingPF =
-                Math.cos(
-                    sendingPowerAngle
-                );
-
-
-            let ps_watts;
-            let qs_var;
-            let ss_va;
-
-
-            if (phase === 3) {
-
-                ps_watts =
-                    3 *
-                    vs_mag *
-                    is_mag *
-                    sendingPF;
-
-
-                qs_var =
-                    3 *
-                    vs_mag *
-                    is_mag *
-                    Math.sin(
-                        sendingPowerAngle
-                    );
-
-
-                ss_va =
-                    3 *
-                    vs_mag *
-                    is_mag;
-
-            }
-
-            else {
-
-                ps_watts =
-                    vs_mag *
-                    is_mag *
-                    sendingPF;
-
-
-                qs_var =
-                    vs_mag *
-                    is_mag *
-                    Math.sin(
-                        sendingPowerAngle
-                    );
-
-
-                ss_va =
-                    vs_mag *
-                    is_mag;
-
-            }
-
-
-
-            const ps_mw =
-                ps_watts / 1e6;
-
-
-            const qs_mvar =
-                qs_var / 1e6;
-
-
-            const ss_mva =
-                ss_va / 1e6;
-
-
-
-            /* -----------------------------------------------------
-               VOLTAGE REGULATION
-            ----------------------------------------------------- */
-
-            // At no load:
-            // Vs = A * Vr(no-load)
-            //
-            // Therefore:
-            // Vr(no-load) = Vs / A
-
-            const vr_no_load =
-                vs_mag / A.mag();
-
-
-            const voltageRegulation =
-                (
-                    (vr_no_load - vr_phase) /
-                    vr_phase
-                ) * 100;
-
-
-
-            /* -----------------------------------------------------
-               EFFICIENCY
-            ----------------------------------------------------- */
-
-            const efficiency =
-                (pr_watts / ps_watts) *
-                100;
-
-
-
-            /* -----------------------------------------------------
-               RETURN ALL RESULTS
-            ----------------------------------------------------- */
-
-            return {
-
-                lineType,
-
-                A,
-                B,
-                C,
-                D,
-
-                ir_a: ir_mag,
-
-                ir_angle_deg:
-                    ir_angle * 180 / PI,
-
-                vs_kv:
-                    vs_line_kv,
-
-                vs_angle_deg:
-                    vs_angle * 180 / PI,
-
-                is_a:
-                    is_mag,
-
-                is_angle_deg:
-                    is_angle * 180 / PI,
-
-                ps_mw,
-
-                qs_mvar,
-
-                ss_mva,
-
-                pfs:
-                    Math.abs(sendingPF),
-
-                pfDirection:
-                    sendingPowerAngle >= 0
-                        ? "Leading"
-                        : "Lagging",
-
-                v_reg:
-                    voltageRegulation,
-
-                eff:
-                    efficiency
-
-            };
-
-        }
-
-
-
-        /* =========================================================
-           FORMAT COMPLEX NUMBER
-        ========================================================= */
-
-        function formatComplex(complexNumber) {
-
-            const re =
-                complexNumber.re;
-
-
-            const im =
-                complexNumber.im;
-
-
-            const sign =
-                im >= 0
-                    ? "+"
-                    : "−";
-
-
-            return (
-                re.toFixed(5) +
-                " " +
-                sign +
-                " j" +
-                Math.abs(im).toFixed(5)
+        ir_mag =
+            pr_watts /
+            (
+                3 *
+                vr_phase *
+                pf
             );
 
-        }
+    }
 
+    else {
 
-
-        /* =========================================================
-           FORMAT PHASOR
-        ========================================================= */
-
-        function formatPhasor(
-            magnitude,
-            angleDeg,
-            unit
-        ) {
-
-            return (
-                magnitude.toFixed(2) +
-                "∠" +
-                angleDeg.toFixed(2) +
-                "° " +
-                unit
+        ir_mag =
+            pr_watts /
+            (
+                vr_phase *
+                pf
             );
 
-        }
+    }
 
 
 
-        /* =========================================================
-           FORMAT ABCD
-        ========================================================= */
+    /* ---------------------------------------------------------
+       RECEIVING END POWER FACTOR ANGLE
+    --------------------------------------------------------- */
 
-        function formatABCD(
-            complexNumber,
-            unit = ""
-        ) {
-
-            const magnitude =
-                complexNumber.mag();
+    const pfAngle =
+        Math.acos(pf);
 
 
-            const angle =
-                complexNumber.arg() *
-                180 /
-                PI;
+    let ir_angle;
 
 
-            return (
-                formatComplex(complexNumber) +
-                " " +
-                unit +
-                "   |   " +
-                magnitude.toFixed(5) +
-                "∠" +
-                angle.toFixed(2) +
-                "°"
+    if (pfType === "leading") {
+
+        ir_angle =
+            pfAngle;
+
+    }
+
+    else {
+
+        ir_angle =
+            -pfAngle;
+
+    }
+
+
+
+    /* ---------------------------------------------------------
+       RECEIVING END PHASORS
+    --------------------------------------------------------- */
+
+    const VR =
+        new Complex(
+            vr_phase,
+            0
+        );
+
+
+    const IR =
+        Complex.fromPolar(
+            ir_mag,
+            ir_angle
+        );
+
+
+
+    /* ---------------------------------------------------------
+       SENDING END PHASORS
+       
+       Vs = A Vr + B Ir
+       Is = C Vr + D Ir
+    --------------------------------------------------------- */
+
+    const VS =
+        A.mul(VR)
+            .add(
+                B.mul(IR)
             );
 
-        }
 
-
-
-        /* =========================================================
-           FORM SUBMISSION
-        ========================================================= */
-
-        document
-            .getElementById("general-calc-form")
-            .addEventListener(
-                "submit",
-                function (event) {
-
-                    event.preventDefault();
-
-
-                    try {
-
-                        const f =
-                            parseFloat(
-                                document
-                                    .getElementById("gc-freq")
-                                    .value
-                            );
-
-
-                        const L =
-                            parseFloat(
-                                document
-                                    .getElementById("gc-length")
-                                    .value
-                            );
-
-
-                        const r =
-                            parseFloat(
-                                document
-                                    .getElementById("gc-rz")
-                                    .value
-                            );
-
-
-                        const x =
-                            parseFloat(
-                                document
-                                    .getElementById("gc-xz")
-                                    .value
-                            );
-
-
-                        const y_sus =
-                            parseFloat(
-                                document
-                                    .getElementById("gc-y")
-                                    .value
-                            );
-
-
-                        const isTotal =
-                            document
-                                .getElementById("gc-total-toggle")
-                                .checked;
-
-
-                        const phase =
-                            parseInt(
-                                document
-                                    .getElementById("gc-phase")
-                                    .value
-                            );
-
-
-                        const pr_mw =
-                            parseFloat(
-                                document
-                                    .getElementById("gc-p")
-                                    .value
-                            );
-
-
-                        const vr_kv =
-                            parseFloat(
-                                document
-                                    .getElementById("gc-v")
-                                    .value
-                            );
-
-
-                        const pf =
-                            parseFloat(
-                                document
-                                    .getElementById("gc-pf")
-                                    .value
-                            );
-
-
-                        const pfType =
-                            document
-                                .getElementById("gc-pf-type")
-                                .value;
-
-
-
-                        const config = {
-
-                            phase,
-
-                            f,
-
-                            L,
-
-                            r,
-
-                            x,
-
-                            y_sus,
-
-                            pr_mw,
-
-                            vr_kv,
-
-                            pf,
-
-                            pfType,
-
-                            isTotalImpedance:
-                                isTotal
-
-                        };
-
-
-
-                        const res =
-                            calculateLineParameters(
-                                config
-                            );
-
-
-                        displayResults(res);
-
-                    }
-
-                    catch (error) {
-
-                        alert(
-                            "Calculation Error: " +
-                            error.message
-                        );
-
-                        console.error(error);
-
-                    }
-
-                }
+    const IS =
+        C.mul(VR)
+            .add(
+                D.mul(IR)
             );
 
 
 
-        /* =========================================================
-           DISPLAY RESULTS
-        ========================================================= */
+    /* ---------------------------------------------------------
+       MAGNITUDES
+    --------------------------------------------------------- */
 
-        function displayResults(res) {
-
-            document
-                .getElementById("gc-results")
-                .classList
-                .remove("hidden");
+    const vs_mag =
+        VS.mag();
 
 
-
-            /* MODEL */
-
-            document
-                .getElementById("res-classification")
-                .innerText =
-                res.lineType;
+    const vs_angle =
+        VS.arg();
 
 
+    const is_mag =
+        IS.mag();
 
-            /* ABCD */
 
-            document
-                .getElementById("res-a")
-                .innerText =
-                formatABCD(
-                    res.A
+    const is_angle =
+        IS.arg();
+
+
+
+    /* ---------------------------------------------------------
+       CONVERT SENDING VOLTAGE TO LINE VOLTAGE
+    --------------------------------------------------------- */
+
+    let vs_line_kv;
+
+
+    if (phase === 3) {
+
+        vs_line_kv =
+            (
+                vs_mag *
+                Math.sqrt(3)
+            ) / 1000;
+
+    }
+
+    else {
+
+        vs_line_kv =
+            vs_mag / 1000;
+
+    }
+
+
+
+    /* ---------------------------------------------------------
+       SENDING END POWER FACTOR
+    --------------------------------------------------------- */
+
+    const sendingPowerAngle =
+        vs_angle -
+        is_angle;
+
+
+    const sendingPF =
+        Math.cos(
+            sendingPowerAngle
+        );
+
+
+    let ps_watts;
+    let qs_var;
+    let ss_va;
+
+
+
+    if (phase === 3) {
+
+        ps_watts =
+            3 *
+            vs_mag *
+            is_mag *
+            sendingPF;
+
+
+        qs_var =
+            3 *
+            vs_mag *
+            is_mag *
+            Math.sin(
+                sendingPowerAngle
+            );
+
+
+        ss_va =
+            3 *
+            vs_mag *
+            is_mag;
+
+    }
+
+    else {
+
+        ps_watts =
+            vs_mag *
+            is_mag *
+            sendingPF;
+
+
+        qs_var =
+            vs_mag *
+            is_mag *
+            Math.sin(
+                sendingPowerAngle
+            );
+
+
+        ss_va =
+            vs_mag *
+            is_mag;
+
+    }
+
+
+
+    /* ---------------------------------------------------------
+       CONVERT POWER UNITS
+    --------------------------------------------------------- */
+
+    const ps_mw =
+        ps_watts / 1e6;
+
+
+    const qs_mvar =
+        qs_var / 1e6;
+
+
+    const ss_mva =
+        ss_va / 1e6;
+
+
+
+    /* ---------------------------------------------------------
+       VOLTAGE REGULATION
+       
+       Vr(no-load) = Vs / |A|
+       
+       %VR =
+       [(Vr(no-load) - Vr(full-load))/Vr(full-load)] × 100
+    --------------------------------------------------------- */
+
+    const vr_no_load =
+        vs_mag /
+        A.mag();
+
+
+    const voltageRegulation =
+        (
+            (
+                vr_no_load -
+                vr_phase
+            ) /
+            vr_phase
+        ) * 100;
+
+
+
+    /* ---------------------------------------------------------
+       TRANSMISSION EFFICIENCY
+    --------------------------------------------------------- */
+
+    const efficiency =
+        (
+            pr_watts /
+            ps_watts
+        ) * 100;
+
+
+
+    /* ---------------------------------------------------------
+       POWER FACTOR DIRECTION
+    --------------------------------------------------------- */
+
+    let pfDirection;
+
+
+    if (sendingPowerAngle > 0) {
+
+        pfDirection = "Leading";
+
+    }
+
+    else if (sendingPowerAngle < 0) {
+
+        pfDirection = "Lagging";
+
+    }
+
+    else {
+
+        pfDirection = "Unity";
+
+    }
+
+
+
+    /* ---------------------------------------------------------
+       RETURN RESULTS
+    --------------------------------------------------------- */
+
+    return {
+
+        lineType,
+
+        A,
+        B,
+        C,
+        D,
+
+        ir_a:
+            ir_mag,
+
+        ir_angle_deg:
+            ir_angle *
+            180 /
+            PI,
+
+        vs_kv:
+            vs_line_kv,
+
+        vs_angle_deg:
+            vs_angle *
+            180 /
+            PI,
+
+        is_a:
+            is_mag,
+
+        is_angle_deg:
+            is_angle *
+            180 /
+            PI,
+
+        ps_mw,
+
+        qs_mvar,
+
+        ss_mva,
+
+        pfs:
+            Math.abs(sendingPF),
+
+        pfDirection,
+
+        v_reg:
+            voltageRegulation,
+
+        eff:
+            efficiency
+
+    };
+
+}
+
+
+
+/* =========================================================
+   FORMAT PHASOR
+========================================================= */
+
+function formatPhasor(
+    magnitude,
+    angleDeg,
+    unit
+) {
+
+    return (
+
+        magnitude.toFixed(2) +
+        "∠" +
+        angleDeg.toFixed(2) +
+        "° " +
+        unit
+
+    );
+
+}
+
+
+
+/* =========================================================
+   FORMAT ABCD PARAMETERS
+       
+   POLAR FORM ONLY
+========================================================= */
+
+function formatABCD(
+    complexNumber,
+    unit = ""
+) {
+
+    const magnitude =
+        complexNumber.mag();
+
+
+    const angle =
+        complexNumber.arg() *
+        180 /
+        PI;
+
+
+    return (
+
+        magnitude.toFixed(5) +
+        "∠" +
+        angle.toFixed(2) +
+        "° " +
+        unit
+
+    );
+
+}
+
+
+
+/* =========================================================
+   FORM SUBMISSION
+========================================================= */
+
+document
+    .getElementById("general-calc-form")
+    .addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+
+            try {
+
+
+                /* ---------------------------------------------
+                   INPUT VALUES
+                --------------------------------------------- */
+
+                const f =
+                    parseFloat(
+                        document
+                            .getElementById("gc-freq")
+                            .value
+                    );
+
+
+                const L =
+                    parseFloat(
+                        document
+                            .getElementById("gc-length")
+                            .value
+                    );
+
+
+                const r =
+                    parseFloat(
+                        document
+                            .getElementById("gc-rz")
+                            .value
+                    );
+
+
+                const x =
+                    parseFloat(
+                        document
+                            .getElementById("gc-xz")
+                            .value
+                    );
+
+
+                const y_sus =
+                    parseFloat(
+                        document
+                            .getElementById("gc-y")
+                            .value
+                    );
+
+
+                const isTotal =
+                    document
+                        .getElementById("gc-total-toggle")
+                        .checked;
+
+
+                const phase =
+                    parseInt(
+                        document
+                            .getElementById("gc-phase")
+                            .value
+                    );
+
+
+                const pr_mw =
+                    parseFloat(
+                        document
+                            .getElementById("gc-p")
+                            .value
+                    );
+
+
+                const vr_kv =
+                    parseFloat(
+                        document
+                            .getElementById("gc-v")
+                            .value
+                    );
+
+
+                const pf =
+                    parseFloat(
+                        document
+                            .getElementById("gc-pf")
+                            .value
+                    );
+
+
+                const pfType =
+                    document
+                        .getElementById("gc-pf-type")
+                        .value;
+
+
+
+                /* ---------------------------------------------
+                   CONFIGURATION
+                --------------------------------------------- */
+
+                const config = {
+
+                    phase,
+
+                    f,
+
+                    L,
+
+                    r,
+
+                    x,
+
+                    y_sus,
+
+                    pr_mw,
+
+                    vr_kv,
+
+                    pf,
+
+                    pfType,
+
+                    isTotalImpedance:
+                        isTotal
+
+                };
+
+
+
+                /* ---------------------------------------------
+                   CALCULATE
+                --------------------------------------------- */
+
+                const result =
+                    calculateLineParameters(
+                        config
+                    );
+
+
+
+                /* ---------------------------------------------
+                   DISPLAY
+                --------------------------------------------- */
+
+                displayResults(result);
+
+            }
+
+
+            catch(error) {
+
+                alert(
+                    "Calculation Error: " +
+                    error.message
                 );
 
+                console.error(error);
 
-            document
-                .getElementById("res-b")
-                .innerText =
-                formatABCD(
-                    res.B,
-                    "Ω"
-                );
-
-
-            document
-                .getElementById("res-c")
-                .innerText =
-                formatABCD(
-                    res.C,
-                    "S"
-                );
-
-
-            document
-                .getElementById("res-d")
-                .innerText =
-                formatABCD(
-                    res.D
-                );
-
-
-
-            /* RECEIVING CURRENT */
-
-            document
-                .getElementById("res-ir")
-                .innerText =
-                formatPhasor(
-                    res.ir_a,
-                    res.ir_angle_deg,
-                    "A"
-                );
-
-
-
-            /* SENDING VOLTAGE */
-
-            document
-                .getElementById("res-vs")
-                .innerText =
-                formatPhasor(
-                    res.vs_kv,
-                    res.vs_angle_deg,
-                    "kV"
-                );
-
-
-
-            /* SENDING CURRENT */
-
-            document
-                .getElementById("res-is")
-                .innerText =
-                formatPhasor(
-                    res.is_a,
-                    res.is_angle_deg,
-                    "A"
-                );
-
-
-
-            /* SENDING ACTIVE POWER */
-
-            document
-                .getElementById("res-ps")
-                .innerText =
-                res.ps_mw.toFixed(2) +
-                " MW";
-
-
-
-            /* SENDING REACTIVE POWER */
-
-            document
-                .getElementById("res-qs")
-                .innerText =
-                res.qs_mvar.toFixed(2) +
-                " MVAR";
-
-
-
-            /* APPARENT POWER */
-
-            document
-                .getElementById("res-ss")
-                .innerText =
-                res.ss_mva.toFixed(2) +
-                " MVA";
-
-
-
-            /* SENDING PF */
-
-            document
-                .getElementById("res-pfs")
-                .innerText =
-                res.pfs.toFixed(4) +
-                " " +
-                res.pfDirection;
-
-
-
-            /* VOLTAGE REGULATION */
-
-            document
-                .getElementById("res-vr")
-                .innerText =
-                res.v_reg.toFixed(2) +
-                " %";
-
-
-
-            /* EFFICIENCY */
-
-            document
-                .getElementById("res-eff")
-                .innerText =
-                res.eff.toFixed(2) +
-                " %";
-
-
-
-            /* SCROLL TO RESULTS */
-
-            document
-                .getElementById("gc-results")
-                .scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
+            }
 
         }
+    );
 
-    </script>
+
+
+/* =========================================================
+   DISPLAY RESULTS
+========================================================= */
+
+function displayResults(res) {
+
+
+    /* SHOW RESULTS */
+
+    document
+        .getElementById("gc-results")
+        .classList
+        .remove("hidden");
+
+
+
+    /* ---------------------------------------------------------
+       LINE MODEL
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-classification")
+        .innerText =
+        res.lineType;
+
+
+
+    /* ---------------------------------------------------------
+       ABCD PARAMETERS
+       
+       POLAR FORM ONLY
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-a")
+        .innerText =
+        formatABCD(
+            res.A
+        );
+
+
+    document
+        .getElementById("res-b")
+        .innerText =
+        formatABCD(
+            res.B,
+            "Ω"
+        );
+
+
+    document
+        .getElementById("res-c")
+        .innerText =
+        formatABCD(
+            res.C,
+            "S"
+        );
+
+
+    document
+        .getElementById("res-d")
+        .innerText =
+        formatABCD(
+            res.D
+        );
+
+
+
+    /* ---------------------------------------------------------
+       RECEIVING END CURRENT
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-ir")
+        .innerText =
+        formatPhasor(
+            res.ir_a,
+            res.ir_angle_deg,
+            "A"
+        );
+
+
+
+    /* ---------------------------------------------------------
+       SENDING END VOLTAGE
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-vs")
+        .innerText =
+        formatPhasor(
+            res.vs_kv,
+            res.vs_angle_deg,
+            "kV"
+        );
+
+
+
+    /* ---------------------------------------------------------
+       SENDING END CURRENT
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-is")
+        .innerText =
+        formatPhasor(
+            res.is_a,
+            res.is_angle_deg,
+            "A"
+        );
+
+
+
+    /* ---------------------------------------------------------
+       SENDING ACTIVE POWER
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-ps")
+        .innerText =
+        res.ps_mw.toFixed(2) +
+        " MW";
+
+
+
+    /* ---------------------------------------------------------
+       SENDING REACTIVE POWER
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-qs")
+        .innerText =
+        res.qs_mvar.toFixed(2) +
+        " MVAR";
+
+
+
+    /* ---------------------------------------------------------
+       SENDING APPARENT POWER
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-ss")
+        .innerText =
+        res.ss_mva.toFixed(2) +
+        " MVA";
+
+
+
+    /* ---------------------------------------------------------
+       SENDING POWER FACTOR
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-pfs")
+        .innerText =
+
+        res.pfs.toFixed(4) +
+        " " +
+        res.pfDirection;
+
+
+
+    /* ---------------------------------------------------------
+       VOLTAGE REGULATION
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-vr")
+        .innerText =
+        res.v_reg.toFixed(2) +
+        " %";
+
+
+
+    /* ---------------------------------------------------------
+       EFFICIENCY
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("res-eff")
+        .innerText =
+        res.eff.toFixed(2) +
+        " %";
+
+
+
+    /* ---------------------------------------------------------
+       SCROLL TO RESULTS
+    --------------------------------------------------------- */
+
+    document
+        .getElementById("gc-results")
+        .scrollIntoView({
+
+            behavior: "smooth",
+
+            block: "start"
+
+        });
+
+}
+
+</script>
 
 </body>
 
